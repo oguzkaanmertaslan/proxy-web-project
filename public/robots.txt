@@ -1,0 +1,12 @@
+# Robots.txt for Proxy Gayrimenkul
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://proxyinvestment.com/sitemap.xml
+Sitemap: https://proxyinvestment.com/api/sitemap.xml
+
+# Disallow admin and api pages
+Disallow: /admin/
+Disallow: /api/
+
