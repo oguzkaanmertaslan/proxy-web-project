@@ -8,13 +8,14 @@ import ProjectDescription from '@/components/project-detail/ProjectDescription';
 import ProjectAmenities from '@/components/project-detail/ProjectAmenities';
 import ProjectInfoCard from '@/components/project-detail/ProjectInfoCard';
 import ContactForm from '@/components/project-detail/ContactForm';
+import SEO, { generateProjectSEO } from '@/components/SEO';
 import { ProjectDetail } from '@/types';
 import { fetchProjectById } from '@/lib/api';
 
 export default function ProjectDetailPage() {
     const router = useRouter();
     const { id } = router.query;
-    
+
     const [project, setProject] = useState<ProjectDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -22,12 +23,12 @@ export default function ProjectDetailPage() {
     useEffect(() => {
         const loadProjectDetail = async () => {
             if (!id || typeof id !== 'string') return;
-            
+
             setLoading(true);
             setError(null);
 
             const data = await fetchProjectById(id);
-            
+
             if (data) {
                 setProject(data);
             } else {
@@ -49,6 +50,17 @@ export default function ProjectDetailPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-white text-slate-900">
+            {/* Dinamik SEO - Her proje için özel metadata oluşturur */}
+            <SEO
+                {...generateProjectSEO({
+                    title: project.title,
+                    location: project.location,
+                    description: project.description.join(' '),
+                    price: project.summary.price,
+                    coverImage: project.gallery.main,
+                    id: project.id,
+                })}
+            />
             <Header />
             <main className="flex-grow pt-20">
                 <div className="max-w-[1440px] mx-auto px-4 md:px-10 py-6 md:py-10">
@@ -65,21 +77,21 @@ export default function ProjectDetailPage() {
                         {/* Left Column */}
                         <div className="col-span-12 lg:col-span-7 space-y-6">
                             <ProjectGallery gallery={project.gallery} tags={project.tags} />
-                            <ProjectDescription 
-                                description={project.description} 
-                                highlights={project.investmentHighlights} 
+                            <ProjectDescription
+                                description={project.description}
+                                highlights={project.investmentHighlights}
                             />
                             <ProjectAmenities amenities={project.amenities} />
                         </div>
                         {/* Right Column (Sticky) */}
                         <div className="col-span-12 lg:col-span-5">
                             <div className="lg:sticky lg:top-24 space-y-6">
-                               <ProjectInfoCard
+                                <ProjectInfoCard
                                     title={project.title}
                                     location={project.location}
                                     summary={project.summary}
-                               />
-                               <ContactForm />
+                                />
+                                <ContactForm />
                             </div>
                         </div>
                     </div>

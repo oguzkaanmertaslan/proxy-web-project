@@ -10,13 +10,14 @@ import PriceCard from '@/components/detail/PriceCard';
 import SpecsCard from '@/components/detail/SpecsCard';
 import AgentCard from '@/components/detail/AgentCard';
 import DetailFooter from '@/components/detail/DetailFooter';
+import SEO, { generateListingSEO } from '@/components/SEO';
 import { ListingDetail } from '@/types';
 import { fetchListingByUid } from '@/lib/api';
 
 export default function ListingDetailPage() {
   const router = useRouter();
   const { id } = router.query;
-  
+
   const [listing, setListing] = useState<ListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,10 +25,10 @@ export default function ListingDetailPage() {
   useEffect(() => {
     const loadListingDetail = async () => {
       if (!id || typeof id !== 'string') return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       const data = await fetchListingByUid(id);
 
       if (data) {
@@ -50,10 +51,10 @@ export default function ListingDetailPage() {
 
   if (loading) {
     return (
-        <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center gap-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            <p className="text-lg font-medium">Veriler Hazırlanıyor...</p>
-        </div>
+      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <p className="text-lg font-medium">Veriler Hazırlanıyor...</p>
+      </div>
     );
   }
 
@@ -63,13 +64,25 @@ export default function ListingDetailPage() {
 
   return (
     <div className="bg-white text-slate-900 min-h-screen flex flex-col">
+      {/* Dinamik SEO - Her ilan için özel metadata oluşturur */}
+      <SEO
+        {...generateListingSEO({
+          title: listing.title,
+          location: listing.location,
+          description: listing.description.paragraphs.join(' '),
+          price: listing.price,
+          coverImage: listing.gallery.main,
+          id: listing.listingId,
+          updatedAt: listing.lastUpdated,
+        })}
+      />
       <Header />
       <main className="flex-grow w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-[6.5rem] pb-6">
         <Breadcrumbs items={breadcrumbItems} />
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
           <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
-            <TitleBlock 
+            <TitleBlock
               tags={listing.tags}
               title={listing.title}
               location={listing.location}
@@ -77,7 +90,7 @@ export default function ListingDetailPage() {
               lastUpdated={listing.lastUpdated}
             />
             <Gallery mainImage={listing.gallery.main} thumbnails={listing.gallery.thumbnails} />
-            <DescriptionCard 
+            <DescriptionCard
               paragraphs={listing.description.paragraphs}
               features={listing.description.features}
             />
